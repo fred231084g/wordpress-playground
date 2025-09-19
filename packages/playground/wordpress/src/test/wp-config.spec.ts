@@ -246,6 +246,40 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once ABSPATH . 'wp-settings.php';
 `);
 	});
+
+	it('should allow configuring default constants', async () => {
+		php.writeFile(
+			wpConfigPath,
+			`<?php
+			echo json_encode([
+				'DB_NAME' => DB_NAME,
+				'DB_USER' => DB_USER,
+				'CUSTOM_CONSTANT' => CUSTOM_CONSTANT,
+				'WP_DEBUG' => WP_DEBUG,
+			]);`
+		);
+
+		await ensureWpConfig(php, documentRoot, {
+			DB_NAME: 'custom-name',
+			CUSTOM_CONSTANT: 'custom-value',
+		});
+
+		const rewritten = php.readFileAsText(wpConfigPath);
+		expect(rewritten).toContain(`define( 'DB_NAME', 'custom-name' );`);
+		expect(rewritten).toContain(`define( 'DB_USER', 'wordpress' );`);
+		expect(rewritten).toContain(
+			`define( 'CUSTOM_CONSTANT', 'custom-value' );`
+		);
+		expect(rewritten).toContain(`define( 'WP_DEBUG', false );`);
+
+		const response = await php.run({ code: rewritten });
+		expect(response.json).toEqual({
+			DB_NAME: 'custom-name',
+			DB_USER: 'wordpress',
+			CUSTOM_CONSTANT: 'custom-value',
+			WP_DEBUG: false,
+		});
+	});
 });
 
 describe('defineWpConfigConstants', () => {

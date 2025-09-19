@@ -14,7 +14,8 @@ import wpConfigTransformer from './wp-config-transformer.php?raw';
  */
 export async function ensureWpConfig(
 	php: UniversalPHP,
-	documentRoot: string
+	documentRoot: string,
+	defaultConstants: Record<string, string | number | boolean | null> = {}
 ): Promise<void> {
 	const wpConfigPath = joinPaths(documentRoot, 'wp-config.php');
 
@@ -35,6 +36,7 @@ export async function ensureWpConfig(
 		LOGGED_IN_SALT: 'put your unique phrase here',
 		NONCE_SALT: 'put your unique phrase here',
 		WP_DEBUG: false,
+		...defaultConstants,
 	};
 
 	/**

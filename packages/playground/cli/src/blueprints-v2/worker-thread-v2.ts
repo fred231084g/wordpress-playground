@@ -152,6 +152,7 @@ export type WorkerBootRequestHandlerOptions = Omit<
 	'mountsBeforeWpInstall' | 'mountsAfterWpInstall'
 > & {
 	onPHPInstanceCreated: PHPInstanceCreatedHook;
+	wpConfigDefaultConstants?: Record<string, string | number | boolean | null>;
 };
 
 export class PlaygroundCliBlueprintV2Worker extends PHPWorker {
@@ -232,6 +233,7 @@ export class PlaygroundCliBlueprintV2Worker extends PHPWorker {
 					});
 				}
 			},
+			wpConfigDefaultConstants: args.wpConfigDefaultConstants,
 		};
 		await this.bootRequestHandler(requestHandlerOptions);
 
@@ -415,6 +417,7 @@ export class PlaygroundCliBlueprintV2Worker extends PHPWorker {
 		nativeInternalDirPath,
 		withXdebug,
 		onPHPInstanceCreated,
+		wpConfigDefaultConstants,
 	}: WorkerBootRequestHandlerOptions) {
 		if (this.booted) {
 			throw new Error('Playground already booted');
@@ -458,6 +461,7 @@ export class PlaygroundCliBlueprintV2Worker extends PHPWorker {
 				phpIniEntries,
 				cookieStore: false,
 				spawnHandler: sandboxedSpawnHandlerFactory,
+				wpConfigDefaultConstants,
 			});
 			this.__internal_setRequestHandler(requestHandler);
 
